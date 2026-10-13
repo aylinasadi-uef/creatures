@@ -1,4 +1,5 @@
 import Creature from './Creature.jsx';
+import { useState } from 'react';
 
 function CreatureField() {
     const creatureData =[
@@ -34,6 +35,26 @@ function CreatureField() {
         }
     ]
 
+    const [creatures, setCreatures] = useState(
+        creatureData.map(creatures =>  ({...creatures, isAwake: false}))
+    );
+
+    const handleWake = (id) => {
+        setCreatures(prev => prev.map(creatures => {
+            if (creatures.id !== id) return creatures;
+            const willAwake = !creatures.isAwake;
+            return {
+                ...creatures,
+                isAwake: willAwake,
+                x: willAwake ? Math.floor(Math.random() * 700) : creatures.x,
+                y: willAwake ? Math.floor(Math.random() * 700) : creatures.y
+            };
+        }));
+    };
+
+    const awakeCount = creatures.filter(c => c.isAwake).length;
+
+
     const fieldStyle = {
         position: 'relative',
         width: '800px',
@@ -44,17 +65,17 @@ function CreatureField() {
     };
 
     return (
-        <div style={fieldStyle}>
-            {creatureData.map(creature => (
-                <Creature
-                    key={creature.id}
-                    name={creature.name}
-                    age={creature.age}
-                    sleepImageUrl={creature.sleepImageUrl}
-                    awakeImageUrl={creature.awakeImageUrl}
-                    x={creature.x} y={creature.y}
-                />
-            ))} 
+        <div style={{ textAlign: 'center' }}>
+            <h2>{awakeCount} out of {creatures.length} creatures are awake</h2>
+            <div style={fieldStyle}>
+                {creatures.map(creature => (
+                    <Creature
+                        key={creature.id}
+                        {...creature}
+                        onWake={() => handleWake(creature.id)}
+                    />
+                ))}
+            </div>
         </div>
     );
 }
